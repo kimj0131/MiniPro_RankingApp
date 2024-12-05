@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RankingApp.Components;
 using RankingApp.Components.Account;
 using RankingApp.Data;
+using RankingApp.Data.Services;
 
 namespace RankingApp
 {
@@ -21,6 +22,9 @@ namespace RankingApp
 			builder.Services.AddScoped<IdentityUserAccessor>();
 			builder.Services.AddScoped<IdentityRedirectManager>();
 			builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+			// 작성한 서비스 등록
+			builder.Services.AddScoped<RankingService>();
 
 			builder.Services.AddAuthentication(options =>
 				{
