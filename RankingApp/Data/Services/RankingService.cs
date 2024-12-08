@@ -11,6 +11,18 @@ namespace RankingApp.Data.Services
 			_context = context;
 		}
 
+		// ** CRUD **
+
+		// Create
+		public Task<GameResult> AddGameResult(GameResult gameResult)
+		{
+			_context.GameResults.Add(gameResult);
+			_context.SaveChanges();
+
+			return Task.FromResult(gameResult);
+		}
+
+		// Read
 		public Task<List<GameResult>> GetGameResultsAsync()
 		{
 			List<GameResult> results = _context.GameResults
@@ -19,5 +31,9 @@ namespace RankingApp.Data.Services
 
 			return Task.FromResult(results);
 		}
+
+		// Update
+
+		// Delete
 	}
 }
