@@ -22,6 +22,8 @@
                         <th>UserName</th>
                         <th>Score</th>
                         <th>Date</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,6 +33,12 @@
                             <td>@gameResult.UserName</td>
                             <td>@gameResult.Score</td>
                             <td>@gameResult.Date</td>
+                            <td>
+                                <button class="btn btn-primary" @onclick="() => UpdateGameResult(gameResult)">Edit</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" @onclick="() => DeleteGameResult(gameResult)">Delete</button>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -55,9 +63,9 @@
                             </div>
                             <div class="modal-body">
                                 <label for="UserName">UserName</label>
-                                <input class="form-control" type="text" placeholder="UserName" @bind-value="_addData.UserName"/> <label for="UserName">UserName</label>
+                                <input class="form-control" type="text" placeholder="UserName" @bind-value="_gameResult.UserName"/> <label for="UserName">UserName</label>
                                 <label for="Score">Score</label>
-                                <input class="form-control" type="text" placeholder="Score" @bind-value="_addData.Score" />
+                                <input class="form-control" type="text" placeholder="Score" @bind-value="_gameResult.Score" />
                                 <button class="btn btn-primary" @onclick="SaveGameResult">
                                     Save
                                 </button>
@@ -80,7 +88,7 @@
     List<GameResult> _gameResults;
 
     bool _showPopup;
-    GameResult _addData;
+    GameResult _gameResult;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,7 +98,7 @@
     protected void AddGameResult()
     {
         _showPopup = true;
-        _addData = new GameResult() { Id = 0 };
+        _gameResult = new GameResult() { Id = 0 };
     }
 
     protected void ClosePopup()
@@ -98,18 +106,34 @@
         _showPopup = false;
     }
 
-    async Task SaveGameResult()
+    void UpdateGameResult(GameResult gameResult)
     {
-        if(_addData.Id == 0)
-        {
-            _addData.Date = DateTime.Now;
-            var result = RankingService.AddGameResult(_addData);
-        }
-        else
-        {
+        _showPopup = true;
+        _gameResult = gameResult;
+    }
 
-        }
+    async Task DeleteGameResult(GameResult gameResult)
+    {
+        var result = RankingService.DeleteGameResult(gameResult);
 
         _gameResults = await RankingService.GetGameResultsAsync();
     }
+
+
+    async Task SaveGameResult()
+    {
+        if (_gameResult.Id == 0)
+        {
+            _gameResult.Date = DateTime.Now;
+            var result = RankingService.AddGameResult(_gameResult);
+        }
+        else
+        {
+            var result = RankingService.UpdateGameResult(_gameResult);
+        }
+
+        _showPopup = false;
+        _gameResults = await RankingService.GetGameResultsAsync();
+    }
+
 }

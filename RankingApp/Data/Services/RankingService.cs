@@ -33,7 +33,36 @@ namespace RankingApp.Data.Services
 		}
 
 		// Update
+		public Task<bool> UpdateGameResult(GameResult gameResult)
+		{
+			var findResult = _context.GameResults
+						.Where(item => item.Id == gameResult.Id)
+						.FirstOrDefault();
+
+			if (findResult == null)
+				return Task.FromResult(false);
+
+			findResult.UserName = gameResult.UserName;
+			findResult.Score = gameResult.Score;
+			_context.SaveChanges();
+
+			return Task.FromResult(true);
+		}
 
 		// Delete
+		public Task<bool> DeleteGameResult(GameResult gameResult)
+		{
+			var findResult = _context.GameResults
+						.Where(item => item.Id == gameResult.Id)
+						.FirstOrDefault();
+
+			if (findResult == null)
+				return Task.FromResult(false);
+
+			_context.GameResults.Remove(gameResult);
+			_context.SaveChanges();
+
+			return Task.FromResult(true);
+		}
 	}
 }
