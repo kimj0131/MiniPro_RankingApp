@@ -1,68 +1,76 @@
-﻿using RankingApp.Data.Models;
+﻿using Newtonsoft.Json;
+using SharedData.Models;
+using System.Text;
 
 namespace RankingApp.Data.Services
 {
+	// [C <->S] <-> [S] - DB
 	public class RankingService
 	{
-		ApplicationDbContext _context;
+		HttpClient _httpClient;
 
-		public RankingService(ApplicationDbContext context)
+
+		public RankingService(HttpClient client)
 		{
-			_context = context;
+			_httpClient = client;
 		}
 
 		// ** CRUD **
 
 		// Create
-		public Task<GameResult> AddGameResult(GameResult gameResult)
+		public async Task<GameResult> AddGameResult(GameResult gameResult)
 		{
-			_context.GameResults.Add(gameResult);
-			_context.SaveChanges();
+			// Json방식으로 변환하여 데이터를 송신
+			string jsonStr = JsonConvert.SerializeObject(gameResult);
+			var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
 
-			return Task.FromResult(gameResult);
+			var result = await _httpClient.PostAsync("api/ranking", content);
+
+			if (result.IsSuccessStatusCode == false)
+				throw new Exception("AddGameResult Failed");
+
+			var resultContent = await result.Content.ReadAsStringAsync();
+			// 받아온 string을 gameResult로 변환
+			GameResult resGameResult = JsonConvert.DeserializeObject<GameResult>(resultContent);
+
+			return resGameResult;
 		}
 
 		// Read
-		public Task<List<GameResult>> GetGameResultsAsync()
+		public async Task<List<GameResult>> GetGameResultsAsync()
 		{
-			List<GameResult> results = _context.GameResults
-								.OrderByDescending(item => item.Score)
-								.ToList();
+			var result = await _httpClient.GetAsync("api/ranking");
 
-			return Task.FromResult(results);
+			var resultContent = await result.Content.ReadAsStringAsync();
+			List<GameResult> resGameResults = JsonConvert.DeserializeObject<List<GameResult>>(resultContent);
+
+			return resGameResults;
 		}
 
 		// Update
-		public Task<bool> UpdateGameResult(GameResult gameResult)
+		public async Task<bool> UpdateGameResult(GameResult gameResult)
 		{
-			var findResult = _context.GameResults
-						.Where(item => item.Id == gameResult.Id)
-						.FirstOrDefault();
+			// Json방식으로 변환하여 데이터를 송신
+			string jsonStr = JsonConvert.SerializeObject(gameResult);
+			var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
 
-			if (findResult == null)
-				return Task.FromResult(false);
+			var result = await _httpClient.PutAsync("api/ranking", content);
 
-			findResult.UserName = gameResult.UserName;
-			findResult.Score = gameResult.Score;
-			_context.SaveChanges();
+			if (result.IsSuccessStatusCode == false)
+				throw new Exception("UpdateGameResult Failed");
 
-			return Task.FromResult(true);
+			return true;
 		}
 
 		// Delete
-		public Task<bool> DeleteGameResult(GameResult gameResult)
+		public async Task<bool> DeleteGameResult(GameResult gameResult)
 		{
-			var findResult = _context.GameResults
-						.Where(item => item.Id == gameResult.Id)
-						.FirstOrDefault();
+			var result = await _httpClient.DeleteAsync($"api/ranking/{gameResult.Id}");
 
-			if (findResult == null)
-				return Task.FromResult(false);
+			if (result.IsSuccessStatusCode == false)
+				throw new Exception("UpdateGameResult Failed");
 
-			_context.GameResults.Remove(gameResult);
-			_context.SaveChanges();
-
-			return Task.FromResult(true);
+			return true;
 		}
 	}
 }

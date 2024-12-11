@@ -24,7 +24,11 @@ namespace RankingApp
 			builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
 			// 작성한 서비스 등록
-			builder.Services.AddScoped<RankingService>();
+			//builder.Services.AddScoped<RankingService>();
+			builder.Services.AddHttpClient<RankingService>(c =>
+			{
+				c.BaseAddress = new Uri("https://localhost:7287");
+			});
 
 			builder.Services.AddAuthentication(options =>
 				{
