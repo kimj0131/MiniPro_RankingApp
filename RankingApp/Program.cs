@@ -27,7 +27,7 @@ namespace RankingApp
 			//builder.Services.AddScoped<RankingService>();
 			builder.Services.AddHttpClient<RankingService>(c =>
 			{
-				c.BaseAddress = new Uri("https://localhost:7287");
+				c.BaseAddress = new Uri("https://localhost:44316");
 			});
 
 			builder.Services.AddAuthentication(options =>
